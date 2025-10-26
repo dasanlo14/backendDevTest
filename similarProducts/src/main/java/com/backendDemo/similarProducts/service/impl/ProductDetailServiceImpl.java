@@ -6,7 +6,13 @@ import com.backendDemo.similarProducts.service.ProductDetailService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Semaphore;
+
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+import static java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor;
 
 @Service
 public class ProductDetailServiceImpl implements ProductDetailService {
@@ -20,11 +26,13 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     @Override
     public List<ProductDetail> findSimilarProducts(String productId){
         String[] similarProductsIds = this.productClient.getSimilarProductsIds(productId);
-        List<ProductDetail> productDetails = new ArrayList<>();
-        for(String id : similarProductsIds){
-            ProductDetail productDetail = this.productClient.findProductById(id);
-            productDetails.add(productDetail);
+        try (var executor  = newVirtualThreadPerTaskExecutor()) {
+            var futures = Arrays.stream(similarProductsIds)
+                    .map(id -> supplyAsync(() -> this.productClient.findProductById(id), executor))
+                    .toList();
+            return futures.stream()
+                        .map(CompletableFuture::join)
+                        .toList();
         }
-        return productDetails;
     }
 }

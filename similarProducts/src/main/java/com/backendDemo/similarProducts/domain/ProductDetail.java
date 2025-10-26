@@ -13,14 +13,14 @@ public class ProductDetail {
     private String name;
 
     @NotNull
-    private BigDecimal price;
+    private Double price;
 
     @NotNull
     private Boolean availability;
 
     public ProductDetail() {}
 
-    public ProductDetail(String id, String name, BigDecimal price, Boolean availability) {
+    public ProductDetail(String id, String name, Double price, Boolean availability) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -43,11 +43,11 @@ public class ProductDetail {
         this.name = name;
     }
 
-    public BigDecimal getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
